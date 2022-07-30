@@ -1,21 +1,27 @@
 using Cesium.CodeGen.Contexts;
 using Cesium.CodeGen.Extensions;
 using Cesium.CodeGen.Ir.Expressions;
+using Mono.Cecil.Cil;
 
 namespace Cesium.CodeGen.Ir.BlockItems;
 
 internal class ExpressionStatement : IBlockItem
 {
-    private readonly IExpression? _expression;
-    internal ExpressionStatement(IExpression? expression)
+    private readonly IExpression _expression;
+    internal ExpressionStatement(IExpression expression)
     {
         _expression = expression;
     }
 
-    public ExpressionStatement(Ast.ExpressionStatement statement) : this(statement.Expression?.ToIntermediate())
+    public ExpressionStatement(Ast.ExpressionStatement statement) : this(statement.Expression!.ToIntermediate())
     {
     }
 
-    public IBlockItem Lower() => new ExpressionStatement(_expression?.Lower());
-    public void EmitTo(IDeclarationScope scope) => _expression?.EmitTo(scope);
+    public IBlockItem Lower() => new ExpressionStatement(_expression.Lower());
+    public void EmitTo(IDeclarationScope scope)
+    {
+        _expression.EmitTo(scope);
+        if(_expression is FunctionCallExpression && !_expression.GetExpressionType(scope).IsEqualTo(scope.TypeSystem.Void))
+            scope.Method.Body.Instructions.Add(Instruction.Create(OpCodes.Pop));
+    }
 }

@@ -19,6 +19,8 @@ internal static class TypeSystemEx
         return method == null ? null : context.Module.ImportReference(method);
     }
 
+    public static bool IsEqualTo(this TypeReference a, TypeReference b) => a.FullName == b.FullName;
+
     private static MethodInfo? FindMethod(IEnumerable<Assembly> assemblies, string typeName, string methodName)
     {
         foreach (var assembly in assemblies)

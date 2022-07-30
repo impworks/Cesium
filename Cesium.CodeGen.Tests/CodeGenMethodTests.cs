@@ -234,4 +234,11 @@ int main()
 {
     int unused;
 }", "Function foo has no return statement.");
+
+    [Fact]
+    public Task DiscardFunctionValue() => DoTest(@"int foo() { return 1; }
+int main() {
+  foo();
+  return 0;
+}");
 }
